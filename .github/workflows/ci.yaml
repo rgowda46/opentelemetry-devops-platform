@@ -38,20 +38,19 @@ jobs:
         - name: Checkout code
           uses: actions/checkout@v4
 
-        - name: Validate Terraform Formatting
-          uses: hashicorp/setup-terraform@v3
+        - name: Setup Go
+          uses: actions/setup-go@v5
+          with:
+            go-version-file: src/product-catalog/go.mod
 
-        - name: Terraform Format Check
-          run: terraform fmt -check -recursive terraform
-          continue-on-error: true
+        - name: Verify Go Version
+          run: go version
 
-        - name: Validate Kubernetes Manifests
-          run: |
-            find kubernetes -name "*.yaml" -o -name "*.yml"
-
-        - name: Validate GitHub Actions Workflow
-          run: |
-            ls .github/workflows
+        - name: Run golangci-lint
+          uses: golangci/golangci-lint-action@v8
+          with:
+            version: latest
+            working-directory: src/product-catalog
 
     docker:
       runs-on: ubuntu-latest
