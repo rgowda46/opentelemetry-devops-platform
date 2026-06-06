@@ -1,13 +1,16 @@
 # Copyright The OpenTelemetry Authors
 # SPDX-License-Identifier: Apache-2.0
 
-FROM docker.io/library/golang:1.25.10-alpine@sha256:8d22e29d960bc50cd025d93d5b7c7d220b1ee9aa7a239b3c8f55a57e987e8d45
+FROM golang:1.22-alpine
 
 WORKDIR /build
 
 RUN apk add --no-cache protobuf-dev
 
-COPY ./src/product-catalog/go.mod go.mod
-COPY ./src/product-catalog/go.sum go.sum
+COPY ./src/product-catalog/go.mod ./
+COPY ./src/product-catalog/go.sum ./
+COPY ./src/product-catalog/tools.go ./
 
-RUN go install tool
+RUN go env -w GOMODCACHE=/root/.cache/go-build
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    go list -e -f '{{range .Imports}}{{.}} {{end}}' tools.go | CGO_ENABLED=0 xargs go install -mod=readonly \
