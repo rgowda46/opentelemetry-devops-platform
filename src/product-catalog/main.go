@@ -97,6 +97,7 @@ func initDatabase() error {
 	return nil
 }
 
+
 func main() {
 	ctx := context.Background()
 
